@@ -1,0 +1,36 @@
+{
+  "name": "uni-pages-generator",
+  "version": "0.0.1",
+  "description": "generate pages.json from js file",
+  "main": "./lib/index.js",
+  "module": "./lib/index.es.js",
+  "scripts": {
+    "clean": "rm -rf build",
+    "build": "rollup -c --bundleConfigAsCjs",
+    "tsc": "tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/feacx/uni-pages-generator.git"
+  },
+  "keywords": [
+    "uniapp",
+    "pages",
+    "pages.json"
+  ],
+  "author": "Fea.cx",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/feacx/uni-pages-generator/issues"
+  },
+  "homepage": "https://github.com/feacx/uni-pages-generator#readme",
+  "devDependencies": {
+    "@types/node": "^18.11.9",
+    "esbuild": "^0.15.15",
+    "rollup": "^3.4.0",
+    "rollup-plugin-dts": "^5.0.0",
+    "rollup-plugin-esbuild": "^5.0.0",
+    "rollup-plugin-typescript2": "^0.34.1",
+    "typescript": "^4.9.3"
+  }
+}
