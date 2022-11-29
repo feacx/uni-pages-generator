@@ -1,13 +1,13 @@
 {
   "name": "uni-pages-generator",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "generate pages.json from js file",
   "main": "./lib/index.js",
   "module": "./lib/index.es.js",
   "type": "commonjs",
   "scripts": {
     "clean": "rm -rf build",
-    "build": "rollup -c -w --bundleConfigAsCjs",
+    "build": "rollup -c --bundleConfigAsCjs",
     "tsc": "tsc"
   },
   "repository": {
