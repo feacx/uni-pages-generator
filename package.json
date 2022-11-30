@@ -1,6 +1,6 @@
 {
   "name": "uni-pages-generator",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "generate pages.json from js file",
   "main": "./lib/index.js",
   "module": "./lib/index.es.js",
@@ -29,8 +29,10 @@
     "@types/node": "^18.11.9",
     "esbuild": "^0.15.15",
     "rollup": "^3.4.0",
+    "rollup-plugin-cleanup": "^3.2.1",
     "rollup-plugin-dts": "^5.0.0",
     "rollup-plugin-esbuild": "^5.0.0",
+    "rollup-plugin-terser": "^7.0.2",
     "rollup-plugin-typescript2": "^0.34.1",
     "typescript": "^4.9.3"
   }

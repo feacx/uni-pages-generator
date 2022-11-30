@@ -5,7 +5,7 @@ const SDK_VERSION = '0.1'; // SDK库版本
 
 const defaultParams = {
     name: DEFAULT_NAME,
-    server_url: "https://philips.dev.x-chain.net.cn/lab/cms/baseContentTag/getContentTagList",
+    server_url: "https://api.xxx.com/byte.gif",
     send_timeout: 1e3,
     show_log: true,
     autoTrack: {

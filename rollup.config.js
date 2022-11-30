@@ -1,6 +1,8 @@
 import dts from "rollup-plugin-dts";
 import esbuild from "rollup-plugin-esbuild";
 import typescript from "rollup-plugin-typescript2";
+import { terser } from 'rollup-plugin-terser';
+import cleanup from 'rollup-plugin-cleanup';
 
 const name = require("./package.json").main.replace(/\.js$/, "");
 
@@ -12,7 +14,7 @@ const bundle = (config) => ({
 
 export default [
   bundle({
-    plugins: [esbuild, typescript()],
+    plugins: [esbuild, typescript(), terser(), cleanup()],
     output: [
       {
         file: `${name}.js`,

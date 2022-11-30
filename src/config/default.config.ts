@@ -3,7 +3,7 @@ import { DEFAULT_NAME, DEFAULT_STORAGE_NAME } from '../config';
 
 export const defaultParams: IParams = {
   name: DEFAULT_NAME, // 全局变量名
-  server_url: "https://philips.dev.x-chain.net.cn/lab/cms/baseContentTag/getContentTagList", // 服务端url
+  server_url: "https://api.xxx.com/byte.gif", // 服务端url
   send_timeout: 1e3, // 超时时间
   show_log: true, // 是否打印Log
   autoTrack: {
