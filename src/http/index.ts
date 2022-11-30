@@ -1,4 +1,4 @@
-import { DEFAULT_USER_STORAGE_NAME } from "../config";
+import { globalConfig } from "..";
 import { defaultParams } from "../config/default.config";
 import { ITrack } from "../interface";
 import { getCurrentPageUrl, getCurrentPageUrlAndArgs, getCurrentTimestramp, getGlobalStorageSycn, getReferer, getUUID } from "../utils";
@@ -141,10 +141,10 @@ export const getAnonymousId = (): string => {
 export const setGlobalUserStorageData = (key: string, value: string | number) => {
   const user = getGlobalUserStorage();
   user[key] = value;
-  wx.setStorageSync(DEFAULT_USER_STORAGE_NAME, user);
+  wx.setStorageSync(globalConfig.storage_store_user_key, user);
 }
 
 const getGlobalUserStorage = () => {
-  const user = wx.getStorageSync(DEFAULT_USER_STORAGE_NAME);
+  const user = wx.getStorageSync(globalConfig.storage_store_user_key);
   return user || {};
 }

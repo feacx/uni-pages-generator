@@ -1,6 +1,5 @@
 const DEFAULT_NAME = "monitor"; // 全局应用变量名
 const DEFAULT_STORAGE_NAME = 'monitor_storage_2022'; // 全局 Storage 存储值
-const DEFAULT_USER_STORAGE_NAME = `${DEFAULT_STORAGE_NAME}_user`; // 全局 Storage 存储值
 const SDK_VERSION = '0.1'; // SDK库版本
 
 const defaultParams = {
@@ -23,7 +22,8 @@ const defaultParams = {
         pageLeave: true,
     },
     batch_send: true,
-    storage_store_key: DEFAULT_STORAGE_NAME, // 全局数据 storage 键名
+    storage_store_key: DEFAULT_STORAGE_NAME,
+    storage_store_user_key: DEFAULT_STORAGE_NAME, // 全局数据 storage 键名
 };
 
 /**
@@ -114,12 +114,6 @@ const initialize = (name) => {
     return Promise.all([getNetworkType(), getSystemInfo()]).catch((err) => {
         console.log("初始化失败", err);
     });
-};
-/**
- * @description 获取全局小程序APP
- */
-const getMiniprogramApp = () => {
-    return getApp();
 };
 /**
  * @description 获取当前URL，不包含参数
@@ -215,6 +209,19 @@ const getRandom = () => {
     const l = Math.ceil(((e = (9301 * e + 49297) % 233280) / 233280) * 1e19);
     return l / 1e19;
 };
+/**
+ * @description url解码
+ */
+const _decodeURIComponent = (e) => {
+    var t = "";
+    try {
+        t = decodeURIComponent(e);
+    }
+    catch (a) {
+        t = e;
+    }
+    return t;
+};
 
 /**
  * @description 发送请求
@@ -265,7 +272,7 @@ const formatParameter = (event, properties) => {
         distinct_id: getDistinctId(),
         anonymous_id: getAnonymousId(),
         login_id: getLoginId(),
-        openid: setOpenid(),
+        openid: setOpenid$1(),
         properties: {
             ...GlobalProperties,
             ...properties,
@@ -309,7 +316,7 @@ const getLoginId = () => {
  * @description 获取 LoginID
  * @returns
  */
-const setOpenid = () => {
+const setOpenid$1 = () => {
     let user = getGlobalUserStorage();
     if (user.openid) {
         setGlobalUserStorageData('distinct_id', user.openid);
@@ -335,10 +342,10 @@ const getAnonymousId = () => {
 const setGlobalUserStorageData = (key, value) => {
     const user = getGlobalUserStorage();
     user[key] = value;
-    wx.setStorageSync(DEFAULT_USER_STORAGE_NAME, user);
+    wx.setStorageSync(globalConfig.storage_store_user_key, user);
 };
 const getGlobalUserStorage = () => {
-    const user = wx.getStorageSync(DEFAULT_USER_STORAGE_NAME);
+    const user = wx.getStorageSync(globalConfig.storage_store_user_key);
     return user || {};
 };
 
@@ -347,37 +354,86 @@ const getGlobalUserStorage = () => {
  */
 const setLaunchAttribute = (app_name) => {
     const launch = wx.getLaunchOptionsSync();
-    const set = {
-        $app_id: getMiniprogramApp()[app_name].appid,
+    const launchInfo = {
+        $app_id: monitor.appid,
         $latest_scene: launch.scene,
-        $miniprogram_name: getMiniprogramApp()[app_name].miniprogram_name,
+        $miniprogram_name: monitor.miniprogram_name,
     };
-    mergeGlobalStorageObject(set);
+    const utm_source = ['utm_campaign', 'utm_content', 'utm_medium', 'utm_source', 'utm_term'];
+    for (let index = 0; index < utm_source.length; index++) {
+        const element = utm_source[index];
+        if (launch.query[element]) {
+            launchInfo[`$${element}`] = _decodeURIComponent(launch.query[element]);
+        }
+    }
+    mergeGlobalStorageObject(launchInfo);
 };
 class Bootstrap {
-    constructor(app) {
-        this.pageEvent = (e) => {
-            this.app.config.autoTrack.pageLoad && (e.onLoad = () => {
-                this.app.track('$PageLoad', {});
-            });
-            this.app.config.autoTrack.pageShow && (e.onShow = () => {
-                console.log('Show');
-                this.app.track('$PageShow', {});
-            });
-            this.app.config.autoTrack.pageUnload && (e.onUnload = () => {
-                console.log('Unload');
-                this.app.track('$PageUnload', {});
-            });
-            this.app.config.autoTrack.pageHide && (e.onHide = () => {
-                console.log('Hide');
-                this.app.track('$PageHide', {});
-            });
+    constructor() {
+        this.pageEvent = function (e) {
+            if (monitor.config.autoTrack.pageLoad) {
+                const type = 'onLoad';
+                if (e[type]) {
+                    const _event = e[type];
+                    e[type] = function () {
+                        monitor.track('$PageLoad', {});
+                        _event.apply(this, arguments);
+                    };
+                }
+            }
+            if (monitor.config.autoTrack.pageShow) {
+                const type = 'onShow';
+                if (e[type]) {
+                    const _event = e[type];
+                    e[type] = function () {
+                        monitor.track('$PageShow', {});
+                        _event.apply(this, arguments);
+                    };
+                }
+            }
+            if (monitor.config.autoTrack.pageUnload) {
+                const type = 'onUnload';
+                if (e[type]) {
+                    const _event = e[type];
+                    e[type] = function () {
+                        monitor.track('$PageUnload', {});
+                        _event.apply(this, arguments);
+                    };
+                }
+            }
+            if (monitor.config.autoTrack.pageHide) {
+                const type = 'onHide';
+                if (e[type]) {
+                    const _event = e[type];
+                    e[type] = function () {
+                        monitor.track('$PageHide', {});
+                        _event.apply(this, arguments);
+                    };
+                }
+            }
+            if (monitor.config.autoTrack.pageShare) {
+                const type = 'onShareAppMessage';
+                if (e[type]) {
+                    const _event = e[type];
+                    e[type] = function () {
+                        monitor.track('$pageShare', {});
+                        _event.apply(this, arguments);
+                    };
+                }
+                const type2 = 'onShareTimeline';
+                if (e[type2]) {
+                    const _event = e[type2];
+                    e[type2] = function () {
+                        monitor.track('$pageShare', {});
+                        _event.apply(this, arguments);
+                    };
+                }
+            }
         };
-        this.app = app;
         this.init();
     }
     init() {
-        const config = this.app.config;
+        const config = monitor.config;
         if (!isObject(config))
             return;
         config.autoTrack && config.autoTrack.appLaunch && this.appLaunch();
@@ -389,24 +445,24 @@ class Bootstrap {
      * @description 小程序启动
      */
     appLaunch() {
-        this.app.track("$MPLaunch", {});
+        monitor.track("$MPLaunch", {});
     }
     ;
     appShow() {
         wx.onAppShow((e) => {
-            this.app.track("$MPShow", {});
+            monitor.track("$MPShow", {});
         });
     }
     ;
     appHide() {
         wx.onAppShow((e) => {
-            this.app.track("$MPHide", {});
+            monitor.track("$MPHide", {});
         });
     }
     ;
     pageMonitor() {
         const that = this;
-        var e = Page;
+        const e = Page;
         Page = function (t) {
             try {
                 // @ts-ignore
@@ -417,13 +473,12 @@ class Bootstrap {
                 e.apply(this, arguments);
             }
         };
-        var t = Component;
+        const t = Component;
         // @ts-ignore
         Component = function (e) {
             try {
-                e || (e = {}), that.pageEvent(e.methods || {});
                 // @ts-ignore
-                t.apply(this, arguments);
+                e || (e = {}), e.methods || (e.methods = {}), that.pageEvent(e.methods), t.apply(this, arguments);
             }
             catch (e) {
                 // @ts-ignore
@@ -433,57 +488,43 @@ class Bootstrap {
     }
 }
 
-/**
- * @description main into
- * @author Fea.cx
- * @datetime 2022-11-22
- */
-class Analytics {
-    constructor(config) {
-        this.app = {};
-        this.config = { ...defaultParams, ...config };
-        this.init();
+const monitor = {};
+const globalConfig = { ...defaultParams };
+const setParam = async (config) => {
+    clearData(config);
+    await initialize(config.name);
+    globalConfig.name = config.name;
+    globalConfig.miniprogram_name = config.miniprogram_name;
+    monitor.track = track;
+    monitor.config = globalConfig;
+    monitor.setOpenid = setOpenid;
+    monitor.login = login;
+    monitor.miniprogram_name = config.miniprogram_name;
+    const account = wx.getAccountInfoSync();
+    monitor.appid = account.miniProgram.appId;
+    const app = getApp();
+    app[config.name] = monitor;
+    setLaunchAttribute(config.name);
+    new Bootstrap();
+};
+const clearData = (config) => {
+    wx.removeStorageSync(config.storage_store_key);
+    wx.removeStorageSync(config.storage_store_user_key);
+};
+const track = (event, properties) => {
+    onTrack(event, properties, "", globalConfig.show_log);
+};
+// 设置openid
+const setOpenid = (openid) => {
+    setGlobalUserStorageData("openid", openid);
+    if (!getLoginId()) {
+        setGlobalUserStorageData("distinct_id", openid);
     }
-    /**
-     * @description 初始化函数
-     */
-    async init() {
-        this.clearData();
-        await initialize(this.config.name);
-        this.app = getApp();
-        this.app[this.config.name] = {};
-        const app = this.app[this.config.name];
-        app.track = this.track;
-        app.config = this.config;
-        app.setOpenid = this.setOpenid;
-        app.login = this.login;
-        app.miniprogram_name = this.config.miniprogram_name;
-        const account = wx.getAccountInfoSync();
-        app.appid = account.miniProgram.appId;
-        setLaunchAttribute(this.config.name);
-        new Bootstrap(app);
-    }
-    // 格式化数据
-    // 合并数据
-    // 发送请求
-    track(event, properties) {
-        onTrack(event, properties, '', this.config.show_log);
-    }
-    // 设置openid
-    setOpenid(openid) {
-        setGlobalUserStorageData('openid', openid);
-        if (!getLoginId()) {
-            setGlobalUserStorageData('distinct_id', openid);
-        }
-    }
-    // 设置 Login id
-    login(id) {
-        setGlobalUserStorageData('login_id', id);
-    }
-    clearData() {
-        wx.removeStorageSync(DEFAULT_STORAGE_NAME);
-        wx.removeStorageSync(DEFAULT_USER_STORAGE_NAME);
-    }
-}
+};
+const login = (id) => {
+    setGlobalUserStorageData("distinct_id", id);
+    setGlobalUserStorageData("login_id", id);
+    track('$BindId', {});
+};
 
-export { Analytics };
+export { globalConfig, login, monitor, setOpenid, setParam, track };

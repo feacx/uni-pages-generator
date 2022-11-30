@@ -180,3 +180,16 @@ export const getRandom = () => {
  export const checkAppLaunch = () => {
   return wx.getLaunchOptionsSync();
 };
+
+/**
+ * @description url解码
+ */
+export const _decodeURIComponent = (e: string) => {
+  var t = "";
+  try {
+    t = decodeURIComponent(e);
+  } catch (a) {
+    t = e;
+  }
+  return t;
+}

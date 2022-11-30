@@ -22,4 +22,5 @@ export const defaultParams: IParams = {
   },
   batch_send: true, // 是否批量发送数据
   storage_store_key: DEFAULT_STORAGE_NAME, // 全局数据 storage 键名
+  storage_store_user_key: DEFAULT_STORAGE_NAME, // 全局数据 storage 键名
 };

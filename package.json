@@ -7,7 +7,7 @@
   "type": "commonjs",
   "scripts": {
     "clean": "rm -rf build",
-    "build": "rollup -c --bundleConfigAsCjs",
+    "build": "rollup -c -w --bundleConfigAsCjs",
     "tsc": "tsc"
   },
   "repository": {

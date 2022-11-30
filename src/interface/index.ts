@@ -22,6 +22,7 @@ export interface IParams {
   };
   batch_send: boolean; // 是否批量发送数据
   storage_store_key: string;
+  storage_store_user_key: string;
   miniprogram_name?: string;
 }
 
